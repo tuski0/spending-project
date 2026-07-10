@@ -14,16 +14,19 @@ def load_data():
         print("====================================================================")
         print(f'데이터 로드 완료 {rows}행 x {cols}열')
         print("====================================================================")
-    
+        print("\n")
+        
     else :
         sys.exit(1)
         
 def explore_structure():
+    print("====================================================================")
     for col_name, col_type in df.dtypes.items() :
         print(f' - {col_name} : {col_type}')
     print("====================================================================")
     print(df.head(5))
     print("====================================================================")
+    print("\n")
     
     
 def show_distribution() :
@@ -32,6 +35,8 @@ def show_distribution() :
     # category 별 비율 구하기
     category = df['category'].unique()
     category_ratio = {}
+    
+    print("====================================================================")
  
     for i in category:
         count = (df['category'] == i).sum()
@@ -68,11 +73,12 @@ def show_distribution() :
         print(f'{key} : {value:.2f}원')
         
     print("====================================================================")
-        
+    
+    print("\n")
         
         
 
 load_data()
+explore_structure()
 show_distribution()
 
-# explore_structure()
