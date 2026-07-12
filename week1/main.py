@@ -20,6 +20,8 @@ def load_data():
     else :
         sys.exit(1)
         
+        
+        
 def explore_structure():
     
     for col_name, col_type in df.dtypes.items() :
@@ -28,6 +30,8 @@ def explore_structure():
     print(df.head(5))
     print("====================================================================")
     print("\n")
+    
+    
     
     
 def show_distribution() :
@@ -77,6 +81,8 @@ def show_distribution() :
     print("\n")
     
     
+    
+    
 def check_missing() :
     missing_dic = {}
     Not_Missing_Dic = {}
@@ -85,7 +91,7 @@ def check_missing() :
     for i in df.columns :
         if df[i].isnull().sum() > 0 :
             miss_ratio = (df[i].isnull().sum() / (len(df[i]) ) * 100)
-            if miss_ratio <= 5 :
+            if miss_ratio < 5 :
                 severity = '낮음'
             elif miss_ratio >= 5 and miss_ratio <= 20 :
                 severity = '주의'
@@ -104,18 +110,79 @@ def check_missing() :
     for key, value in Not_Missing_Dic.items() :
         print(f'{key} : {value}')
     print("====================================================================")
+    print('\n')
     
 
 def numpy_amount_stats() :
-    print(np.array(df['amount']))
-            
-            
+    arr = np.array(df['amount'])
+    clean_array = arr[~np.isnan(arr)]
+    print("====================================================================")
+    print("numpy 활용한 5가지 통계량")
+    print("------------------------")
+    
+    np_dic = {
+        'mean' : round(np.mean(clean_array), 0),
+        'std' : round(np.std(clean_array, ddof=1), 0),
+        'median' : round(np.median(clean_array), 0),
+        'min' : np.min(clean_array),
+        'max' : np.max(clean_array)
+    }
+    
+    for value in np_dic.values() :
+        print(f'{value}', end= '    |    ')
+    print()
+    
+    print("====================================================================")
+    print("5만 원 초과 지출")
+    print("------------------------")
+    over_amount = [clean_array[clean_array > 50000]]
+    # over_amount = []
+    # for i in clean_array :
+    #     if i > 50000 :
+    #         over_amount.append(i)
+    
+    print(*over_amount)
+    print("====================================================================")
+    
+    pandas_amount = df['amount'].describe()
+    
+    pandas_dic = {
+        'mean' : pandas_amount['mean'],
+        'std' : round(pandas_amount['std'], 0),
+        'median' : pandas_amount['50%'],
+        'min' : pandas_amount['min'],
+        'max' : pandas_amount['max']
+    }
+    
+    
+    print('title    Numpy값    Pandas값    일치여부')
+    for title in np_dic.keys() :
+        np_val = np_dic[title]
+        pd_val = pandas_dic[title]
+    
+        result = 'V' if np_val == pd_val else 'X'
         
-        
+        print(f'{title}    {np_val}    {pd_val}    {result}')
         
 
-load_data()
-explore_structure()
-show_distribution()
-check_missing()
-numpy_amount_stats()
+    
+    
+
+if __name__ == '__main__' :
+    # 기능 1
+    load_data()
+    
+    # 기능 2
+    explore_structure()
+    
+    # 기능 3
+    show_distribution()
+    
+    # 기능 4
+    check_missing()
+    
+    # 기능 5
+    numpy_amount_stats()
+    
+    
+
