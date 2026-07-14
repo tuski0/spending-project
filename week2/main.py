@@ -4,12 +4,10 @@ import pandas as pd
 import numpy as np
 
 
-df = None
 
 SPENDING_DATA_PATH = '../data/spending (1).csv'
 
 def load_data():
-    global df
 
     if os.path.exists(SPENDING_DATA_PATH) :
         df = pd.read_csv(SPENDING_DATA_PATH, encoding="utf-8-sig")
@@ -18,9 +16,12 @@ def load_data():
     else :
         sys.exit(1)
         
-    print
+    return df
+        
+    
+    
 
-def parse_date() :
+def parse_date(df) :
 
     date_clean = pd.to_datetime(df["date"], format="%Y-%m-%d", errors="coerce")
     
@@ -29,15 +30,20 @@ def parse_date() :
     
     df["date"] = date_clean
     
+    print(f'날짜 변환 실패(NaT): {len(failed_df)}건', end="")
     for record_id, date in failed_dic.items():
-        print(f'날짜 변환 실패(NaT): {len(failed_df)}건 -> {record_id} ({date}는 존재하지 않는 날짜)')
+        print(f' -> {record_id} ({date}는 존재하지 않는 날짜)')
         
     
     df["year"] = df["date"].dt.year.astype('Int64')
     df["month"] = df["date"].dt.month.astype('Int64')
     df["day"] = df["date"].dt.day.astype('Int64')
     
-def standardize_category() :
+    return df
+    
+    
+    
+def standardize_category(df) :
     cleaned_list = []
     standardize_count = 0
     
@@ -60,27 +66,59 @@ def standardize_category() :
     
     print(f'카테고리 표준화 : 변경 {standardize_count}건')
     
+    return df
     
-            
     
-            
+def add_amount_level(df) :
     
-            
+    amount_level = []
+    
+    for i in df['amount'] :
+        if i < 10000 :
+            amount_level.append('소액')
+        elif 10000 <= i < 50000 :
+            amount_level.append('중액')
+        else :
+            amount_level.append('고액')
+    
+    df['amount_level'] = amount_level
+    
+    print(f'amount_level 분포 -> 소액 {(df["amount_level"] == "소액").sum()} | 중액 {(df["amount_level"] == "중액").sum()} | 고액 {(df["amount_level"] == "고액").sum()}')
+    
+    return df
         
     
     
+def clean_values(df) :
+        
+    before_na_count = df["memo"].isna().sum()
+    df["memo"] = df["memo"].fillna("")
+    print(df["date"].isna().sum())
+    df = df.dropna(subset=["date"])
+    print(df["date"].isna().sum())
+    
+    return df
     
     
-    
-
     
 
 if __name__ == '__main__' :
     
+    
     # 기능 1
-    load_data()
-    parse_date()
-    standardize_category()
+    df = load_data()
+    
+    # # 기능 2
+    df = parse_date(df)
+    
+    # 기능 3
+    df = standardize_category(df) 
+    
+    # 기능 4
+    df = add_amount_level(df)
+    
+    # 기능 5
+    df = clean_values(df)
     
     
 
