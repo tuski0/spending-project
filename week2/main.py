@@ -6,6 +6,7 @@ import numpy as np
 
 
 SPENDING_DATA_PATH = '../data/spending (1).csv'
+DATA_PATH = '../data/'
 
 def load_data():
 
@@ -90,16 +91,32 @@ def add_amount_level(df) :
     
     
 def clean_values(df) :
-        
-    before_na_count = df["memo"].isna().sum()
-    df["memo"] = df["memo"].fillna("")
-    print(df["date"].isna().sum())
-    df = df.dropna(subset=["date"])
-    print(df["date"].isna().sum())
     
+    # memo 결측치
+    memo_na_count = df["memo"].isna().sum()
+    df["memo"] = df["memo"].fillna("")
+    print(f'memo 빈칸 대체 : {memo_na_count}건')
+    before_date_count = df["date"].isna().sum()
+
+    # date 결측치 행 제거
+    df = df.dropna(subset=["date"])  
+    df = df.reset_index(drop=True)
+    after_date_count = df["date"].count()
+    print(f'이상값·날짜오류 제거 : {before_date_count} -> 최종 {after_date_count}행')
+
     return df
     
     
+def show_summary() :
+    
+    # 월별 총 지출
+    print('=== 월별 총 지출 ===')
+    month_result = df.groupby("month")["amount"].sum().reset_index(name="total_amount")
+    print(month_result.to_string(index=False))
+    
+    # 카테고리별 총 지츌
+    category_result = df.groupby("category")["amount"].sum().sort_values(ascending=False).reset_index(name="total_amount")
+    print(category_result.to_string(index=False))
     
 
 if __name__ == '__main__' :
@@ -120,5 +137,9 @@ if __name__ == '__main__' :
     # 기능 5
     df = clean_values(df)
     
+    # 기능 6
+    show_summary()
+    
+
     
 
