@@ -140,6 +140,3 @@ if __name__ == '__main__' :
     # 기능 6
     show_summary()
     
-
-    
-
