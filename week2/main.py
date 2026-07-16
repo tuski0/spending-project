@@ -117,7 +117,19 @@ def show_summary() :
     # 카테고리별 총 지츌
     category_result = df.groupby("category")["amount"].sum().sort_values(ascending=False).reset_index(name="total_amount")
     print(category_result.to_string(index=False))
+
+def save_csv() :
     
+    # csv 저장
+    save_path = DATA_PATH+"spending_clean.csv"
+    df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
+    df.to_csv(save_path, index=False, encoding='utf-8-sig')
+    
+    clean_df = pd.read_csv(save_path, encoding="utf-8-sig")
+    rows , cols = clean_df.shape
+    print(f'정제 데이터 저장 완료: {save_path} ({rows}행 x {cols}열)')
+
+
 
 if __name__ == '__main__' :
     
@@ -140,7 +152,7 @@ if __name__ == '__main__' :
     # 기능 6
     show_summary()
     
-    # csv 저장
-    save_path = DATA_PATH+"spending_clean.csv"
-    df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
-    df.to_csv(save_path, index=False, encoding='utf-8-sig')
+    # 기능 7
+    save_csv()
+    
+    
