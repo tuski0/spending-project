@@ -140,3 +140,7 @@ if __name__ == '__main__' :
     # 기능 6
     show_summary()
     
+    # csv 저장
+    save_path = DATA_PATH+"spending_clean.csv"
+    df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
+    df.to_csv(save_path, index=False, encoding='utf-8-sig')
