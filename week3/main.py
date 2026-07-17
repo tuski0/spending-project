@@ -70,12 +70,13 @@ def save_to_db() :
     
 if __name__ == '__main__' :
     
-    # 기능 1
+    # 
     df = load_data()
     
-    # 기능 2
+    # 기능 1 -> Table 생성하기
     init_db()
     
+    # 기능 2 -> csv 값을 가지고 Table에 대입하기
     save_to_db()
 
     
