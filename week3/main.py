@@ -4,7 +4,9 @@ import sqlite3
 import pandas as pd
 
 DATA_PATH = '../data/'
-def load_data():
+DB_PATH = DATA_PATH+'spendings.db'
+
+def load_clean_data():
     path = DATA_PATH+'spending_clean.csv'
     if os.path.exists(path) :
         df = pd.read_csv(path, encoding="utf-8-sig")
@@ -15,9 +17,8 @@ def load_data():
         
     return df
 
-def init_db() :
+def init_db(conn) :
     os.makedirs("../data", exist_ok=True)
-    conn = sqlite3.connect("../data/spending.db")
     cursor = conn.cursor()
     
     cursor.execute("DROP TABLE IF EXISTS spendings")
@@ -40,13 +41,11 @@ def init_db() :
     
     cursor.execute(create_table_query)
     conn.commit()
-    conn.close()
 
     print("테이블 생성 완료")
     
-def save_to_db() :
-    db_path = DATA_PATH+"spending.db"
-    conn = sqlite3.connect(db_path)
+def save_to_db(conn) :
+    
     cursor = conn.cursor()
     
     df.to_sql("spendings", conn, if_exists="append", index=False)
@@ -60,9 +59,58 @@ def save_to_db() :
     
     print(f"{total_count}행 저장 완료 (DB 내 행 수 : {total_count})")
 
-    conn.close()
+    
+
+def verify_with_python(conn) :
+        
+    query = """
+    SELECT
+        category,
+        COUNT(*) AS 건수,
+        SUM(amount) AS 총지출액,
+        CAST(AVG(amount) AS INT) AS 평균지출액,
+        MAX(amount) AS 최대지출액
+    FROM spendings
+    GROUP BY category
+    ORDER BY 총지출액 DESC;
+    """
+    
+    print('=== 카테고리별 집계 ===')
+    df_summary = pd.read_sql(query, conn)
+    print(df_summary.to_string(index=False))
+    
+    query = """
+    SELECT
+        month,
+        count(*) AS 건수,
+        SUM(amount) AS 총지출액
+    FROM spendings
+    GROUP BY month;
+    """
+    
+    print("=== 월별 총 지출 ===")
+    df_summary = pd.read_sql(query, conn)
+    print(df_summary.to_string(index=False))
     
     
+    df_raw = pd.read_sql("SELECT * FROM spendings", conn)
+    py_result = df_raw.groupby('category')['amount'].sum()
+    
+    
+    query = """
+    SELECT category, SUM(amount) AS amount
+    FROM spendings
+    GROUP BY category
+    ORDER BY category;
+    """
+    sql_result = pd.read_sql(query, conn)
+    sql_result = sql_result.set_index('category')['amount']
+    
+    is_equal = py_result.equals(sql_result)
+    
+    print('=== Python vs SQL 검증 ===')
+    print(f'전체 카테고리 일치 : {is_equal}')
+  
     
     
     
@@ -70,13 +118,22 @@ def save_to_db() :
     
 if __name__ == '__main__' :
     
-    # 
-    df = load_data()
+    # CSV 연결
+    df = load_clean_data()
+    
+    conn = sqlite3.connect(DB_PATH)
     
     # 기능 1 -> Table 생성하기
-    init_db()
+    init_db(conn)
     
     # 기능 2 -> csv 값을 가지고 Table에 대입하기
-    save_to_db()
+    save_to_db(conn)
+    
+    # 기능 3, 4, 5, 6 구현
+    verify_with_python(conn)
+    
+    conn.close()
+    
+    
 
     
