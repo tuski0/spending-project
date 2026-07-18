@@ -19,9 +19,8 @@ def load_clean_data():
 
 def init_db(conn) :
     os.makedirs("../data", exist_ok=True)
-    cursor = conn.cursor()
     
-    cursor.execute("DROP TABLE IF EXISTS spendings")
+    conn.execute("DROP TABLE IF EXISTS spendings")
     
     create_table_query = """
     CREATE TABLE spendings( -- 테이블(Table) : 데이터를 행과 열로 저장하는 구조
@@ -39,21 +38,18 @@ def init_db(conn) :
     );
     """
     
-    cursor.execute(create_table_query)
+    conn.execute(create_table_query)
     conn.commit()
 
     print("테이블 생성 완료")
     
 def save_to_db(conn) :
-    
-    cursor = conn.cursor()
+
     
     df.to_sql("spendings", conn, if_exists="append", index=False)
     conn.commit()
     
-    cursor.execute("SELECT COUNT(*) FROM spendings")
-    
-    result = cursor.fetchone()
+    result = conn.execute("SELECT COUNT(*) FROM spendings").fetchone()
     
     total_count = result[0]
     
