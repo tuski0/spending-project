@@ -7,7 +7,7 @@ DATA_PATH = '../data/'
 DB_PATH = DATA_PATH+'spendings.db'
 
 def load_clean_data():
-    path = DATA_PATH+'spending_clean.csv'
+    path = DATA_PATH+'spending (1).csv'
     if os.path.exists(path) :
         df = pd.read_csv(path, encoding="utf-8-sig")
         rows , cols = df.shape

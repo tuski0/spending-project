@@ -107,7 +107,7 @@ def clean_values(df) :
     return df
     
     
-def show_summary() :
+def show_summary(df) :
     
     # 월별 총 지출
     print('=== 월별 총 지출 ===')
@@ -118,7 +118,7 @@ def show_summary() :
     category_result = df.groupby("category")["amount"].sum().sort_values(ascending=False).reset_index(name="total_amount")
     print(category_result.to_string(index=False))
 
-def save_csv() :
+def save_csv(df) :
     
     # csv 저장
     save_path = DATA_PATH+"spending_clean.csv"
@@ -150,9 +150,9 @@ if __name__ == '__main__' :
     df = clean_values(df)
     
     # 기능 6
-    show_summary()
+    show_summary(df)
     
     # 기능 7
-    save_csv()
+    save_csv(df)
     
     
