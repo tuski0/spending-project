@@ -8,10 +8,10 @@ import numpy as np
 SPENDING_DATA_PATH = '../data/spending (1).csv'
 DATA_PATH = '../data/'
 
-def load_data():
+def load_data(path):
 
-    if os.path.exists(SPENDING_DATA_PATH) :
-        df = pd.read_csv(SPENDING_DATA_PATH, encoding="utf-8-sig")
+    if os.path.exists(path) :
+        df = pd.read_csv(path, encoding="utf-8-sig")
         rows , cols = df.shape
         print(f'데이터 로드 완료: {rows}행 x {cols}열')
     else :
@@ -129,13 +129,10 @@ def save_csv(df) :
     rows , cols = clean_df.shape
     print(f'정제 데이터 저장 완료: {save_path} ({rows}행 x {cols}열)')
 
-
-
-if __name__ == '__main__' :
-    
+def main() :
     
     # 기능 1
-    df = load_data()
+    df = load_data(SPENDING_DATA_PATH)
     
     # # 기능 2
     df = parse_date(df)
@@ -154,5 +151,7 @@ if __name__ == '__main__' :
     
     # 기능 7
     save_csv(df)
+
+if __name__ == '__main__' :
     
-    
+    main()

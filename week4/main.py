@@ -3,21 +3,21 @@ import sys
 import sqlite3
 import pandas as pd
 
-DATA_DIR = '../data/'
-CSV_PATH = DATA_DIR + 'spending (1).csv'
-DB_PATH = DATA_DIR + 'spendings.db'
+DATA_PATH = '../data/'
+CSV_PATH = DATA_PATH + 'spending (1).csv'
+DB_PATH = DATA_PATH + 'spendings.db'
 
-def load_data():
+def load_data(path):
    
-    if os.path.exists(CSV_PATH) :
-        df = pd.read_csv(CSV_PATH, encoding="utf-8-sig")
+    if os.path.exists(path) :
+        df = pd.read_csv(path, encoding="utf-8-sig")
         rows , cols = df.shape
         print(f'[1] 데이터 로드 완료 : ({rows}, {cols})')
     else :
         sys.exit(1)
         
     return df
-        
+    
 def parse_date(df) :
 
     date_clean = pd.to_datetime(df["date"], format="%Y-%m-%d", errors="coerce")
@@ -66,8 +66,8 @@ def add_amount_level(df) :
     df['amount_level'] = amount_level
     
     return df
-        
-       
+
+    
 def clean_values(df) :
     # memo 결측치 -> 빈칸 변경
     df["memo"] = df["memo"].fillna("")
@@ -81,8 +81,8 @@ def clean_values(df) :
 
     return df
 
-def init_db(conn) :
-    os.makedirs("../data", exist_ok=True)
+def init_db(path, conn) :
+    os.makedirs(path, exist_ok=True)
     
     conn.execute("DROP TABLE IF EXISTS spendings")
     
@@ -105,9 +105,8 @@ def init_db(conn) :
     conn.execute(create_table_query)
     conn.commit()
     
-def save_to_db(conn) :
+def save_to_db(conn, df) :
 
-    
     df.to_sql("spendings", conn, if_exists="append", index=False)
     conn.commit()
     
@@ -204,12 +203,11 @@ def payment_analyze(conn) :
     print(df_day.to_string(index=False))
 
 
-if __name__ == '__main__':
-    
+def main() :
     conn = sqlite3.connect(DB_PATH)
     
     # 과제 1
-    df = load_data()
+    df = load_data(CSV_PATH)
     
     # 과제 2
     df = parse_date(df)
@@ -218,16 +216,16 @@ if __name__ == '__main__':
     df = clean_values(df)
     
     # 과제 3
-    init_db(conn)
-    save_to_db(conn)
+    init_db(DATA_PATH, conn)
+    save_to_db(conn, df)
     verify_with_python(conn)
     
     # 과제 4
     payment_analyze(conn)
+
+    conn.close()
+
+
+if __name__ == '__main__':
     
-    
-    
-    
-    
-    
-    
+    main()
