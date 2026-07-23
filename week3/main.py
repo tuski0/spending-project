@@ -4,10 +4,11 @@ import sqlite3
 import pandas as pd
 
 DATA_PATH = '../data/'
+CSV_PATH = DATA_PATH + 'spending_clean.csv'
 DB_PATH = DATA_PATH+'spendings.db'
 
-def load_clean_data():
-    path = DATA_PATH+'spending (1).csv'
+def load_clean_data(path):
+    
     if os.path.exists(path) :
         df = pd.read_csv(path, encoding="utf-8-sig")
         rows , cols = df.shape
@@ -17,8 +18,8 @@ def load_clean_data():
         
     return df
 
-def init_db(conn) :
-    os.makedirs("../data", exist_ok=True)
+def init_db(conn, path) :
+    os.makedirs(path, exist_ok=True)
     
     conn.execute("DROP TABLE IF EXISTS spendings")
     
@@ -43,9 +44,8 @@ def init_db(conn) :
 
     print("테이블 생성 완료")
     
-def save_to_db(conn) :
+def save_to_db(conn, df) :
 
-    
     df.to_sql("spendings", conn, if_exists="append", index=False)
     conn.commit()
     
@@ -106,24 +106,19 @@ def verify_with_python(conn) :
     
     print('=== Python vs SQL 검증 ===')
     print(f'전체 카테고리 일치 : {is_equal}')
-  
+
     
-    
-    
-    
-    
-if __name__ == '__main__' :
-    
+def main() :
     # CSV 연결
-    df = load_clean_data()
+    df = load_clean_data(CSV_PATH)
     
     conn = sqlite3.connect(DB_PATH)
     
     # 기능 1 -> Table 생성하기
-    init_db(conn)
+    init_db(conn, DATA_PATH)
     
     # 기능 2 -> csv 값을 가지고 Table에 대입하기
-    save_to_db(conn)
+    save_to_db(conn, df)
     
     # 기능 3, 4, 5, 6 구현
     verify_with_python(conn)
@@ -131,5 +126,7 @@ if __name__ == '__main__' :
     conn.close()
     
     
-
     
+if __name__ == '__main__' :
+    
+    main()
